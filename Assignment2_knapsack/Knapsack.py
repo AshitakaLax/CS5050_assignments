@@ -9,7 +9,7 @@ import random
 # This class will the package N that may vary by size
 class Item:
 	Size = 0
-	def function(self):
+	def Initialize(self, size):
 		Size = 0
 
 
@@ -17,9 +17,20 @@ class Item:
 # with the Number of Max size it can fill
 class Knapsack:
 	Capacity = 0
-	def function(self):
-		Size = 0
+	FillAmount = 0
+	def Initialize(self, capacity):
+		self.Capacity = capacity
+		self.FillAmount = 0
+	
 
+	# Adds the item to the knapsack if there is room
+	# returns true if there is room, false if there is no room
+	def AddItem(self, item):
+		remainingSpace = self.Capacity - self.FillAmount
+		if(remainingSpace < item.Size):
+			return False
+		self.FillAmount += item.Size
+		return True
 
 # Create a problem generator that 
 # takes n and m and returns a list of n uniformly 
@@ -40,3 +51,25 @@ def ProblemGenerator(N, M):
 listSet = ProblemGenerator(10, 10)
 
 print([item.Size for item in listSet])
+
+# Testing out the Knapsack class
+sack = Knapsack()
+
+print(sack.Capacity)
+print(sack.FillAmount)
+sack.Initialize(10)
+testItem = Item()
+testItem.Size = 5
+print("Result of add:" + str(sack.AddItem(testItem)))
+print(sack.Capacity)
+print(sack.FillAmount)
+
+testItem.Size = 5
+print("Result of add:" + str(sack.AddItem(testItem)))
+print(sack.Capacity)
+print(sack.FillAmount)
+print("Result of add:" + str(sack.AddItem(testItem)))
+print(sack.Capacity)
+print(sack.FillAmount)
+
+
