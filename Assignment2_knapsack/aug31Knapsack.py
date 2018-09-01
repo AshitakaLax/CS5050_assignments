@@ -23,7 +23,7 @@ def s(n):
 
 def runTest(n, k, expect):
 	print("Number of objects: "+ str(n))
-	print("Size of knapsack: "+ str(n))
+	print("Size of knapsack: "+ str(k))
 	result = knap(n, k)
 	print("Can Fill all cells:" + str(result))
 	if(result == expect):
