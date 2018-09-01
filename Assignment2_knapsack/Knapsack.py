@@ -6,11 +6,15 @@
 #imports needed for the assignment
 import random
 
+
 # This class will the package N that may vary by size
 class Item:
+	"""Package N that may vary by size
+	"""
 	Size = 0
+
 	def Initialize(self, size):
-		Size = 0
+		self.Size = 0
 
 
 # This will represent a Knapsack
@@ -18,34 +22,44 @@ class Item:
 class Knapsack:
 	Capacity = 0
 	FillAmount = 0
+
 	def Initialize(self, capacity):
 		self.Capacity = capacity
 		self.FillAmount = 0
-	
 
 	# Adds the item to the knapsack if there is room
 	# returns true if there is room, false if there is no room
 	def AddItem(self, item):
 		remainingSpace = self.Capacity - self.FillAmount
-		if(remainingSpace < item.Size):
+		if (remainingSpace < item.Size):
 			return False
 		self.FillAmount += item.Size
 		return True
 
-# Create a problem generator that 
-# takes n and m and returns a list of n uniformly 
-# random integers in the range 0 to m-1 
+
+##
+# @brief  Create a problem generator that
+# takes n and m and returns a list of n uniformly
+# @param N The number of items to generate
+# @param M the random number range from 0 to M-1
 def ProblemGenerator(N, M):
 	problemSet = []
 	# Create N Items
 	# Randoms assign sizes to the Items from 0 to M-1
 	for count in range(N):
 		item = Item()
-		item.Size = random.randint(0, M-1)
+		item.Size = random.randint(0, M - 1)
 		problemSet.append(item)
 	return problemSet
 
+
+# First solve this problem for One knapsack
+
 # Create Test size sets
+# test data sets
+emptySet = []
+oneItemSet = []
+one = ProblemGenerator(1, 2)
 
 # print problem set
 listSet = ProblemGenerator(10, 10)
@@ -71,5 +85,3 @@ print(sack.FillAmount)
 print("Result of add:" + str(sack.AddItem(testItem)))
 print(sack.Capacity)
 print(sack.FillAmount)
-
-
