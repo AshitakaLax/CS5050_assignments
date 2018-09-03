@@ -5,7 +5,9 @@
 
 #imports needed for the assignment
 import random
-
+import time
+import timeit
+import copy
 
 # This class will the package N that may vary by size
 class Item:
@@ -107,21 +109,23 @@ def KnapRecursive(n, l1, l2):
 		return True
 	if(len(n) == 0):
 		return False
-	item = n.pop(0)
+	copiedItem = copy.deepcopy(n)
+	item = copiedItem.pop(0)
+	#item = n.pop(0)
 	# this is if we put it in the knapsack or  This is if we want to discard the package
 	# to put it in the bag
 
-	return (KnapRecursive(n, knapSackOne.Capacity - item.Size, knapSackTwo.Capacity) # put in KnapsackOne
-	or KnapRecursive(n, knapSackOne.Capacity, knapSackTwo.Capacity - item.Size) # put in knapsackOne
-	or KnapRecursive(n, knapSackOne.Capacity, knapSackTwo.Capacity)) # discard the item
+	return (KnapRecursive(copiedItem, knapSackOne.Capacity - item.Size, knapSackTwo.Capacity) # put in KnapsackOne
+	or KnapRecursive(copiedItem, knapSackOne.Capacity, knapSackTwo.Capacity - item.Size) # put in knapsackTwo
+	or KnapRecursive(copiedItem, knapSackOne.Capacity, knapSackTwo.Capacity)) # discard the item
 # First solve this problem for One knapsack
 
-def runTest(n, k1, k2, expect):
+def runTest(n, k1, k2, expect, testFunction):
 	print("Size of knapsackOne: "+ str(k1))
 	print("Size of knapsackTwo: "+ str(k2))
 	print("Number of objects: "+ str(len(n)))
 	print([item.Size for item in n])
-	result = KnapRecursive(n, k1, k2)
+	result = testFunction(n, k1, k2)
 	print("Can Fill all cells:" + str(result))
 	if(result == expect):
 		print("SUCCESS")
@@ -129,35 +133,168 @@ def runTest(n, k1, k2, expect):
 		print("FAILED")
 	return result == expect
 
-# Create Test size sets
-# test data sets
-# Testing a Single Knapsack
-n = ConstantProblemGenerator(0, 1)
-print([item.Size for item in n])
-sumResult = runTest(n, 0, 0, True)
-n = ConstantProblemGenerator(1, 2)
-sumResult &= runTest(n, 0, 0, True)
-n = ConstantProblemGenerator(10, 2)
-sumResult &= runTest(n, 16, 0, True)
-n = ConstantProblemGenerator(20, 10)
-sumResult &= runTest(n, 100, 0, True)
-n = ConstantProblemGenerator(5, 1)
-sumResult &= runTest(n, 5, 0, True)
+def RunConstantTest(testFunction):
+	"""Runs a set of simple expected result tests against a knapsack function
+	
+	Arguments:
+		testFunction {Method(Item[], int, int)} -- Function that will run the Knapsack alorgithm and return true or false
+	"""
+	# Create Test size sets
+	# test data sets
+	# Testing a Single Knapsack
+	n = ConstantProblemGenerator(0, 1)
+	print([item.Size for item in n])
+	sumResult = runTest(n, 0, 0, True, testFunction)
+	n = ConstantProblemGenerator(1, 2)
+	sumResult &= runTest(n, 0, 0, True, testFunction)
+	n = ConstantProblemGenerator(10, 2)
+	sumResult &= runTest(n, 16, 0, True, testFunction)
+	n = ConstantProblemGenerator(20, 10)
+	sumResult &= runTest(n, 100, 0, True, testFunction)
+	n = ConstantProblemGenerator(5, 1)
+	sumResult &= runTest(n, 5, 0, True, testFunction)
 
-# Testing multiple Knapsacks
-n = ConstantProblemGenerator(5, 5)
-sumResult &= runTest(n, 20, 5, True)
-n = ConstantProblemGenerator(5, 5)
-sumResult &= runTest(n, 20, 6, False)
-n = ConstantProblemGenerator(3, 3)
-sumResult &= runTest(n, 3, 6, True)
-n = ConstantProblemGenerator(3, 3)
-sumResult &= runTest(n, 0, 6, True)
-n = ConstantProblemGenerator(3, 3)
-sumResult &= runTest(n, 0, 10, False)
+	# Testing multiple Knapsacks
+	n = ConstantProblemGenerator(5, 5)
+	sumResult &= runTest(n, 20, 5, True, testFunction)
+	n = ConstantProblemGenerator(5, 5)
+	sumResult &= runTest(n, 20, 6, False, testFunction)
+	n = ConstantProblemGenerator(3, 3)
+	sumResult &= runTest(n, 3, 6, True, testFunction)
+	n = ConstantProblemGenerator(3, 3)
+	sumResult &= runTest(n, 0, 6, True, testFunction)
+	n = ConstantProblemGenerator(3, 3)
+	sumResult &= runTest(n, 0, 10, False, testFunction)
+
+	if(sumResult):
+		print("ALL Tests PASS")
+	else:
+		print("Some Test Failed")
 
 
-if(sumResult):
-	print("ALL Tests PASS")
-else:
-	print("Some Test Failed")
+def RunEquivalantTest(testFunctionOne, TestFunctionTwo):
+	"""Runs a 2 sets of knapsack function calls, and compares the results
+	
+	Arguments:
+		testFunctionOne {Method(Item[], int, int)} -- Function that will run the Knapsack alorgithm and return true or false
+		TestFunctionTwo {Method(Item[], int, int)} -- Function that will run the Knapsack alorgithm and return true or false
+	"""
+	# Create Test size sets
+	# test data sets
+	# Testing a Single Knapsack
+	n = ConstantProblemGenerator(0, 1)
+	m = ConstantProblemGenerator(0, 1)
+	print([item.Size for item in n])
+	sumResult = runTest(n, 0, 0, True, testFunctionOne) and runTest(m, 0, 0, True, TestFunctionTwo)
+	n = ConstantProblemGenerator(1, 2)
+	m = ConstantProblemGenerator(1, 2)
+	sumResult &= runTest(n, 0, 0, True, testFunctionOne) and runTest(m, 0, 0, True, TestFunctionTwo)
+	n = ConstantProblemGenerator(10, 2)
+	m = ConstantProblemGenerator(10, 2)
+	sumResult &= runTest(n, 16, 0, True, testFunctionOne) and runTest(m, 16, 0, True, TestFunctionTwo)
+	n = ConstantProblemGenerator(20, 10)
+	m = ConstantProblemGenerator(20, 10)
+	sumResult &= runTest(n, 100, 0, True, testFunctionOne) and runTest(m, 100, 0, True, TestFunctionTwo)
+	n = ConstantProblemGenerator(5, 1)
+	m = ConstantProblemGenerator(5, 1)
+	sumResult &= runTest(n, 5, 0, True, testFunctionOne) and runTest(m, 5, 0, True, TestFunctionTwo)
+
+	# Testing multiple Knapsacks
+	n = ConstantProblemGenerator(5, 5)
+	m = ConstantProblemGenerator(5, 5)
+	sumResult &= runTest(n, 20, 5, True, testFunctionOne) and runTest(m, 20, 5, True, TestFunctionTwo)
+	n = ConstantProblemGenerator(5, 5)
+	m = ConstantProblemGenerator(5, 5)
+	sumResult &= runTest(n, 20, 6, False, testFunctionOne) and runTest(m, 20, 6, False, TestFunctionTwo)
+	n = ConstantProblemGenerator(3, 3)
+	m = ConstantProblemGenerator(3, 3)
+	sumResult &= runTest(n, 3, 6, True, testFunctionOne) and runTest(m, 3, 6, True, TestFunctionTwo)
+	n = ConstantProblemGenerator(3, 3)
+	m = ConstantProblemGenerator(3, 3)
+	sumResult &= runTest(n, 0, 6, True, testFunctionOne) and runTest(m, 0, 6, True, TestFunctionTwo)
+
+	n = ConstantProblemGenerator(3, 3)
+	m = ConstantProblemGenerator(3, 3)
+	sumResult &= runTest(n, 0, 10, False, testFunctionOne) and runTest(m, 0, 10, False, TestFunctionTwo)
+
+	if(sumResult):
+		print("ALL Tests PASS")
+	else:
+		print("Some Test Failed")
+# We are going to use the cache, this cache will be the concat of 'n'+'l1'+'l2' into a single string, with '_' symbol between them.
+
+cache = {"":False}
+
+def GenerateCacheKey(n, l1, l2):
+	return str(n)+ "_" + str(l1) + "_" + str(l2)
+
+def KnapMemo(n, l1, l2):
+	"""Recursive algorithm that returns true if both 
+	knap sacks are filled, and Uses a Cache to determine whether we need to dig deeper
+	
+	Args:
+		n (List<Item>): The list of Items to add to knapsacks
+		l1 (int): The Size of the first knapsack
+		l2 (int): The Size of the Second knapsack
+	"""
+	cacheKey = GenerateCacheKey(len(n), l1, l2)
+	# check whether the key is already in the cache, similar to a hash
+	if(cacheKey in cache):
+		return cache[cacheKey]
+
+	knapSackOne = Knapsack()
+	knapSackOne.Capacity = l1
+	knapSackTwo = Knapsack()
+	knapSackTwo.Capacity = l2
+	if(knapSackOne.Capacity < 0 or knapSackTwo.Capacity < 0):
+		cache[cacheKey] = False
+		return False
+	if(knapSackOne.Capacity == 0 and knapSackTwo.Capacity == 0):
+		cache[cacheKey] = True
+		return True
+	if(len(n) == 0):
+		cache[cacheKey] = False
+		return False
+		
+	copiedItem = copy.deepcopy(n)
+	item = copiedItem.pop(0)
+	#item = n.pop(0)
+	# this is if we put it in the knapsack or  This is if we want to discard the package
+	# to put it in the bag
+
+	return (KnapMemo(copiedItem, knapSackOne.Capacity - item.Size, knapSackTwo.Capacity) # put in KnapsackOne
+	or KnapMemo(copiedItem, knapSackOne.Capacity, knapSackTwo.Capacity - item.Size) # put in knapsackOne
+	or KnapMemo(copiedItem, knapSackOne.Capacity, knapSackTwo.Capacity)) # discard the item
+
+#RunConstantTest(KnapRecursive)
+#RunConstantTest(KnapMemo)
+# verify that the function calls are equivalent
+#RunEquivalantTest(KnapRecursive, KnapMemo)
+
+#empirical  study
+def RunEmpiricalStudy(testFunction):
+	L1 = 100
+	L2 = 100
+	min = 10
+	max = 200
+	incrementAmount = 10
+	itemSizeM = 50
+	numberOfRuns = 10
+
+	# iterate from min to max
+	for i in range(min, max, incrementAmount):
+		# run each test 10 times with i
+		# Generate the data set to use in the test
+		print("TESTING " + str(i) + " OBJECTS")
+		for j in range(numberOfRuns):
+			items = ProblemGenerator(i, itemSizeM)
+			print("Start Run:" + str(j) + " of " + str(numberOfRuns))
+			startTime = time.time()
+			#duration = timeit.timeit('testFunction(items, L1, L2', number=numberOfRuns)
+			testFunction(items, L1, L2)
+			endTime = time.time()
+			duration = endTime - startTime
+			durationStr =  time.strftime("%H:%M:%S", time.gmtime(duration))
+			print("finished Run:" + str(j) + " of " + str(numberOfRuns) + " with :" + durationStr)
+
+RunEmpiricalStudy(KnapMemo)
