@@ -376,11 +376,11 @@ def KnapNoClassMemo(n, l1, l2):
 		l1 (int): The Size of the first knapsack
 		l2 (int): The Size of the Second knapsack
 	"""
-	
+	global cache
 	cacheKey = GenerateCacheKey(n, l1, l2)
 	if(cacheKey in cache):
 		global CacheHitCounter
-		CacheHitCounter += 0
+		CacheHitCounter += 1
 		return cache[cacheKey]
 
 	if(l1 < 0 or l2 < 0):
@@ -400,6 +400,15 @@ def KnapNoClassMemo(n, l1, l2):
 	#item = n.pop(0)
 	# this is if we put it in the knapsack or  This is if we want to discard the package
 	# to put it in the bag
+
+	#if(not(KnapNoClassMemo(n-1, l1 - itemSize, l2))):
+	
+	cacheKeyOne = GenerateCacheKey(n-1, l1 - itemSize, l2)
+	if(cacheKeyOne in cache):
+		global CacheHitCounter
+		CacheHitCounter += 1
+		if(cache[cacheKey]):
+			return True
 
 	return (KnapNoClassMemo(n-1, l1 - itemSize, l2) # put in KnapsackOne
 	or KnapNoClassMemo(n-1, l1, l2 - itemSize) # put in knapsackTwo
@@ -512,7 +521,7 @@ def RunEmpiricalCompareStudy(testFunction, testMemoFunction):
 			durationMemoStr =  str(durationMemo)
 			print("finished Run:" + str(j) + " of " + str(numberOfRuns) + " with :" + durationStr)
 			print("Number of Calls:" + str(recursiveCounter))
-			print("Recursive:" + str(durationStr) + " recursiveCounter:" + str(nonCacheCounter) + " RecursiveResult:" + str(recursiveResult) + " Cache:" + str(durationMemoStr) + " CacheCounter:" + str(nonCacheCounter) + " CacheResult:" + str(cacheResult) + "CacheHitCounter:" + str(CacheHitCounter))
+			print("Recursive:" + str(durationStr) + " recursiveCounter:" + str(nonCacheCounter) + " RecursiveResult:" + str(recursiveResult) + " Cache:" + str(durationMemoStr) + " CacheCounter:" + str(recursiveCounter) + " CacheResult:" + str(cacheResult) + "CacheHitCounter:" + str(CacheHitCounter))
 
 
 #RunEmpiricalStudy(KnapMemo)
