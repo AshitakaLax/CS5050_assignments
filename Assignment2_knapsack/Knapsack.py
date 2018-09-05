@@ -8,6 +8,7 @@ import random
 import time
 import timeit
 import copy
+import datetime
 
 # This class will the package N that may vary by size
 class Item:
@@ -49,7 +50,18 @@ def ProblemGenerator(N, M):
 		item.Size = random.randint(0, M - 1)
 		problemSet.append(item)
 	return problemSet
+
+class ProblemController:
+	Items = []
+	def SetProblemItems(self, items):
+		self.Items = items
 	
+
+problemCntrl = ProblemController()
+
+def GetIndexBlockSize(index):
+	return problemCntrl.Items[index].Size
+
 def ConstantProblemGenerator(N, C):
 	"""Generates a List of N Items that are size C
 	
@@ -90,6 +102,35 @@ def SingleKnapRecursive(n, l1, l2):
 	# to put it in the bag
 	return SingleKnapRecursive(n, knapSackOne.Capacity - item.Size, 0) or SingleKnapRecursive(n, knapSackOne.Capacity, 0)
 
+recursiveCounter = 0
+def KnapNoClassRecursive(n, l1, l2):
+	"""Recursive algorithm that returns true if both 
+	knap sacks are filled
+	
+	Args:
+		n (List<Item>): The list of Items to add to knapsacks
+		l1 (int): The Size of the first knapsack
+		l2 (int): The Size of the Second knapsack
+	"""
+	if(l1 < 0 or l2 < 0):
+		return False
+	if(l1 == 0 and l2 == 0):
+		return True
+	if(n == 0):
+		return False
+	itemSize = GetIndexBlockSize(n-1)	
+	global recursiveCounter
+	recursiveCounter += 1
+#	copiedItem = copy.deepcopy(n)
+#	item = copiedItem.pop(0)
+	#item = n.pop(0)
+	# this is if we put it in the knapsack or  This is if we want to discard the package
+	# to put it in the bag
+
+	return (KnapNoClassRecursive(n-1, l1 - itemSize, l2) # put in KnapsackOne
+	or KnapNoClassRecursive(n-1, l1, l2 - itemSize) # put in knapsackTwo
+	or KnapNoClassRecursive(n-1, l1, l2)) # discard the item
+
 def KnapRecursive(n, l1, l2):
 	"""Recursive algorithm that returns true if both 
 	knap sacks are filled
@@ -125,6 +166,18 @@ def runTest(n, k1, k2, expect, testFunction):
 	print("Size of knapsackTwo: "+ str(k2))
 	print("Number of objects: "+ str(len(n)))
 	print([item.Size for item in n])
+	result = testFunction(n, k1, k2)
+	print("Can Fill all cells:" + str(result))
+	if(result == expect):
+		print("SUCCESS")
+	else:
+		print("FAILED")
+	return result == expect
+
+def runNoClassTest(n, k1, k2, expect, testFunction):
+	print("Size of knapsackOne: "+ str(k1))
+	print("Size of knapsackTwo: "+ str(k2))
+	print("Number of objects: "+ str(n))
 	result = testFunction(n, k1, k2)
 	print("Can Fill all cells:" + str(result))
 	if(result == expect):
@@ -171,6 +224,53 @@ def RunConstantTest(testFunction):
 	else:
 		print("Some Test Failed")
 
+def RunConstantNoClassTest(testFunction):
+	"""Runs a set of simple expected result tests against a knapsack function
+	
+	Arguments:
+		testFunction {Method(int, int, int)} -- Function that will run the Knapsack alorgithm and return true or false
+	"""
+	# Create Test size sets
+	# test data sets
+	# Testing a Single Knapsack
+	n = ConstantProblemGenerator(0, 1)
+	problemCntrl.SetProblemItems(n)
+
+	sumResult = runNoClassTest(len(n), 0, 0, True, testFunction)
+	n = ConstantProblemGenerator(1, 2)
+	problemCntrl.SetProblemItems(n)
+	sumResult &= runNoClassTest(len(n), 0, 0, True, testFunction)
+	n = ConstantProblemGenerator(10, 2)
+	problemCntrl.SetProblemItems(n)
+	sumResult &= runNoClassTest(len(n), 16, 0, True, testFunction)
+	n = ConstantProblemGenerator(20, 10)
+	problemCntrl.SetProblemItems(n)
+	sumResult &= runNoClassTest(len(n), 100, 0, True, testFunction)
+	n = ConstantProblemGenerator(5, 1)
+	problemCntrl.SetProblemItems(n)
+	sumResult &= runNoClassTest(len(n), 5, 0, True, testFunction)
+
+	# Testing multiple Knapsacks
+	n = ConstantProblemGenerator(5, 5)
+	problemCntrl.SetProblemItems(n)
+	sumResult &= runNoClassTest(len(n), 20, 5, True, testFunction)
+	n = ConstantProblemGenerator(5, 5)
+	problemCntrl.SetProblemItems(n)
+	sumResult &= runNoClassTest(len(n), 20, 6, False, testFunction)
+	n = ConstantProblemGenerator(3, 3)
+	problemCntrl.SetProblemItems(n)
+	sumResult &= runNoClassTest(len(n), 3, 6, True, testFunction)
+	n = ConstantProblemGenerator(3, 3)
+	problemCntrl.SetProblemItems(n)
+	sumResult &= runNoClassTest(len(n), 0, 6, True, testFunction)
+	n = ConstantProblemGenerator(3, 3)
+	problemCntrl.SetProblemItems(n)
+	sumResult &= runNoClassTest(len(n), 0, 10, False, testFunction)
+
+	if(sumResult):
+		print("ALL Tests PASS")
+	else:
+		print("Some Test Failed")
 
 def RunEquivalantTest(testFunctionOne, TestFunctionTwo):
 	"""Runs a 2 sets of knapsack function calls, and compares the results
@@ -266,6 +366,46 @@ def KnapMemo(n, l1, l2):
 	or KnapMemo(copiedItem, knapSackOne.Capacity, knapSackTwo.Capacity - item.Size) # put in knapsackOne
 	or KnapMemo(copiedItem, knapSackOne.Capacity, knapSackTwo.Capacity)) # discard the item
 
+CacheHitCounter = 0
+def KnapNoClassMemo(n, l1, l2):
+	"""Recursive algorithm that returns true if both 
+	knap sacks are filled
+	
+	Args:
+		n (List<Item>): The list of Items to add to knapsacks
+		l1 (int): The Size of the first knapsack
+		l2 (int): The Size of the Second knapsack
+	"""
+	
+	cacheKey = GenerateCacheKey(n, l1, l2)
+	if(cacheKey in cache):
+		global CacheHitCounter
+		CacheHitCounter += 0
+		return cache[cacheKey]
+
+	if(l1 < 0 or l2 < 0):
+		cache[cacheKey] = False
+		return False
+	if(l1 == 0 and l2 == 0):
+		cache[cacheKey] = True
+		return True
+	if(n == 0):
+		cache[cacheKey] = False
+		return False
+	itemSize = GetIndexBlockSize(n-1)	
+	global recursiveCounter
+	recursiveCounter += 1
+#	copiedItem = copy.deepcopy(n)
+#	item = copiedItem.pop(0)
+	#item = n.pop(0)
+	# this is if we put it in the knapsack or  This is if we want to discard the package
+	# to put it in the bag
+
+	return (KnapNoClassMemo(n-1, l1 - itemSize, l2) # put in KnapsackOne
+	or KnapNoClassMemo(n-1, l1, l2 - itemSize) # put in knapsackTwo
+	or KnapNoClassMemo(n-1, l1, l2)) # discard the item
+
+
 #RunConstantTest(KnapRecursive)
 #RunConstantTest(KnapMemo)
 # verify that the function calls are equivalent
@@ -297,4 +437,84 @@ def RunEmpiricalStudy(testFunction):
 			durationStr =  time.strftime("%H:%M:%S", time.gmtime(duration))
 			print("finished Run:" + str(j) + " of " + str(numberOfRuns) + " with :" + durationStr)
 
-RunEmpiricalStudy(KnapMemo)
+#empirical  study
+def RunEmpiricalNoClassStudy(testFunction):
+	L1 = 100
+	L2 = 100
+	min = 10
+	max = 200
+	incrementAmount = 10
+	itemSizeM = 50
+	numberOfRuns = 10
+
+	# iterate from min to max
+	for i in range(min, max, incrementAmount):
+		# run each test 10 times with i
+		# Generate the data set to use in the test
+		print("TESTING " + str(i) + " OBJECTS")
+		for j in range(numberOfRuns):
+			items = ProblemGenerator(i, itemSizeM)
+			problemCntrl.SetProblemItems(items)
+			print("Start Run:" + str(j) + " of " + str(numberOfRuns))
+			global recursiveCounter
+			recursiveCounter = 0
+			dateStartTime = datetime.datetime.now()
+			#startTime = time.time()
+			testFunction(i, L1, L2)
+			dateEndTime = datetime.datetime.now()
+			#endTime = time.time()
+			duration = dateEndTime - dateStartTime
+			
+			durationStr =  str(duration)#time.strftime("%H:%M:%S", time.gmtime(duration))
+			print("finished Run:" + str(j) + " of " + str(numberOfRuns) + " with :" + durationStr)
+			print("Number of Calls:" + str(recursiveCounter))
+
+def RunEmpiricalCompareStudy(testFunction, testMemoFunction):
+	L1 = 100
+	L2 = 100
+	min = 10
+	max = 200
+	incrementAmount = 10
+	itemSizeM = 50
+	numberOfRuns = 10
+
+	# iterate from min to max
+	for i in range(min, max, incrementAmount):
+		# run each test 10 times with i
+		# Generate the data set to use in the test
+		print("TESTING " + str(i) + " OBJECTS")
+		for j in range(numberOfRuns):
+			items = ProblemGenerator(i, itemSizeM)
+			problemCntrl.SetProblemItems(items)
+			print("Start Run:" + str(j) + " of " + str(numberOfRuns))
+			global recursiveCounter
+			recursiveCounter = 0
+			dateStartTime = datetime.datetime.now()
+			recursiveResult = testFunction(i, L1, L2)
+			dateEndTime = datetime.datetime.now()
+			duration = dateEndTime - dateStartTime
+			durationStr =  str(duration)#time.strftime("%H:%M:%S", time.gmtime(duration))
+			print("finished Run:" + str(j) + " of " + str(numberOfRuns) + " with :" + durationStr)
+			print("Number of Calls:" + str(recursiveCounter))
+			nonCacheCounter = recursiveCounter
+
+			# Testing the Memo version
+			recursiveCounter = 0
+			global CacheHitCounter
+			CacheHitCounter = 0
+			global cache
+			cache = {"": False}
+			problemCntrl.SetProblemItems(items)
+			dateStartTime = datetime.datetime.now()
+			cacheResult = testMemoFunction(i, L1, L2)
+			dateEndTime = datetime.datetime.now()
+			durationMemo = dateEndTime - dateStartTime
+			durationMemoStr =  str(durationMemo)
+			print("finished Run:" + str(j) + " of " + str(numberOfRuns) + " with :" + durationStr)
+			print("Number of Calls:" + str(recursiveCounter))
+			print("Recursive:" + str(durationStr) + " recursiveCounter:" + str(nonCacheCounter) + " RecursiveResult:" + str(recursiveResult) + " Cache:" + str(durationMemoStr) + " CacheCounter:" + str(nonCacheCounter) + " CacheResult:" + str(cacheResult) + "CacheHitCounter:" + str(CacheHitCounter))
+
+
+#RunEmpiricalStudy(KnapMemo)
+RunEmpiricalCompareStudy(KnapNoClassRecursive, KnapNoClassMemo)
+#RunConstantNoClassTest(KnapNoClassRecursive)
