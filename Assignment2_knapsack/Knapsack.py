@@ -9,10 +9,8 @@ import time
 import timeit
 import copy
 import datetime
-import seaborn as sns
+import numpy as np
 import matplotlib.pyplot as plt
-sns.set(style="whitegrid")
-#import matplotlib.pylot as plt
 # This class will the package N that may vary by size
 class Item:
 	"""Package N that may vary by size
@@ -555,6 +553,54 @@ def RunEmpiricalCompareStudy(testFunction, testMemoFunction):
 			print("Recursive:" + str(durationStr) + " recursiveCounter:" + str(nonCacheCounter) + " RecursiveResult:" + str(recursiveResult) + " Cache:" + str(durationMemoStr) + " CacheCounter:" + str(recursiveCounter) + " CacheResult:" + str(cacheResult) + "CacheHitCounter:" + str(CacheHitCounter))
 
 
+def RunEmpiricalStudyForGraphData(testFunction):
+	L1 = 100
+	L2 = 100
+	min = 10
+	max = 200
+	incrementAmount = 10
+	itemSizeM = 50
+	numberOfRuns = 10
+
+
+	# iterate from min to max
+	for i in range(min, max, incrementAmount):
+		# run each test 10 times with i
+		# Generate the data set to use in the test
+		print("TESTING " + str(i) + " OBJECTS")
+		for j in range(numberOfRuns):
+			items = ProblemGenerator(i, itemSizeM)
+			problemCntrl.SetProblemItems(items)
+			#print("Start Run:" + str(j) + " of " + str(numberOfRuns))
+			global recursiveCounter
+			recursiveCounter = 0
+			dateStartTime = datetime.datetime.now()
+			recursiveResult = testFunction(i, L1, L2)
+			dateEndTime = datetime.datetime.now()
+			duration = dateEndTime - dateStartTime
+			durationStr =  str(duration)#time.strftime("%H:%M:%S", time.gmtime(duration))
+			#print("finished Run:" + str(j) + " of " + str(numberOfRuns) + " with :" + durationStr)
+			#print("Number of Calls:" + str(recursiveCounter))
+			nonCacheCounter = recursiveCounter
+
+			# Testing the Memo version
+			recursiveCounter = 0
+			global CacheHitCounter
+			CacheHitCounter = 0
+			global cache
+			cache = {"": False}
+			problemCntrl.SetProblemItems(items)
+			dateStartTime = datetime.datetime.now()
+			cacheResult = testMemoFunction(i, L1, L2)
+			dateEndTime = datetime.datetime.now()
+			durationMemo = dateEndTime - dateStartTime
+			durationMemoStr =  str(durationMemo)
+			#print("finished Run:" + str(j) + " of " + str(numberOfRuns) + " with :" + durationStr)
+			#print("Number of Calls:" + str(recursiveCounter))
+			print("Recursive:" + str(durationStr) + " recursiveCounter:" + str(nonCacheCounter) + " RecursiveResult:" + str(recursiveResult) + " Cache:" + str(durationMemoStr) + " CacheCounter:" + str(recursiveCounter) + " CacheResult:" + str(cacheResult) + "CacheHitCounter:" + str(CacheHitCounter))
+
+
+
 # plt.plot([1,2,3,4])
 # plt.ylabel('some numbers')
 # plt.show()
@@ -570,12 +616,19 @@ diamonds = sns.load_dataset("diamonds")
 
 # Draw a scatter plot while assigning point colors and sizes to different
 # variables in the dataset
-f, ax = plt.subplots(figsize=(6.5, 6.5))
-sns.despine(f, left=True, bottom=True)
-clarity_ranking = ["I1", "SI2", "SI1", "VS2", "VS1", "VVS2", "VVS1", "IF"]
-sns.scatterplot(x="carat", y="price",
-                hue="clarity", size="depth",
-                palette="ch:r=-.2,d=.3_r",
-                hue_order=clarity_ranking,
-                sizes=(1, 8), linewidth=0,
-                data=diamonds, ax=ax)
+tips = sns.load_dataset("tips")
+
+data = np.array([['', 'Col1', "Col2"],
+				['Row1', 1, 2],
+				['Row2', 3, 4]])
+				
+xData = [1,2,3]
+yData = [3,2,1]
+
+#dataFrame = pd.DataFrame(data=data[1:,1:],
+#                  index=data[1:,0],
+#                  columns=data[0,1:])
+#print(dataFrame)
+plt.scatter(xData, yData)
+plt.show()
+RunConstantNoClassTest(KnapNoClassRecursive)
