@@ -9,6 +9,9 @@ import time
 import timeit
 import copy
 import datetime
+import seaborn as sns
+import matplotlib.pyplot as plt
+sns.set(style="whitegrid")
 #import matplotlib.pylot as plt
 # This class will the package N that may vary by size
 class Item:
@@ -557,14 +560,22 @@ def RunEmpiricalCompareStudy(testFunction, testMemoFunction):
 # plt.show()
 
 #RunEmpiricalStudy(KnapMemo)
-RunEmpiricalCompareStudy(KnapNoClassRecursive, KnapNoClassMemo)
+#RunEmpiricalCompareStudy(KnapNoClassRecursive, KnapNoClassMemo)
 #RunConstantNoClassTest(KnapNoClassRecursive)
 
-# questions on assignment
-# you can use it with a single dictionary
-#
-# You can get noise, 
+# Creating the graphing data
 
-# How do you want the homework turned in? turn it in as a zip file
-# how he wants graphs
-# he prefers something like GNUPlot
+# Load the example iris dataset
+diamonds = sns.load_dataset("diamonds")
+
+# Draw a scatter plot while assigning point colors and sizes to different
+# variables in the dataset
+f, ax = plt.subplots(figsize=(6.5, 6.5))
+sns.despine(f, left=True, bottom=True)
+clarity_ranking = ["I1", "SI2", "SI1", "VS2", "VS1", "VVS2", "VVS1", "IF"]
+sns.scatterplot(x="carat", y="price",
+                hue="clarity", size="depth",
+                palette="ch:r=-.2,d=.3_r",
+                hue_order=clarity_ranking,
+                sizes=(1, 8), linewidth=0,
+                data=diamonds, ax=ax)

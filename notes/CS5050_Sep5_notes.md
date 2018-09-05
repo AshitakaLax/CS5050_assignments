@@ -1,6 +1,13 @@
 CS5050 Notes
 Date: Sep 5th, 2018
 
+# Questions on assignment 2
+you can use it with a single dictionary
+You can get noise, 
+How do you want the homework turned in? turn it in as a zip file
+how he wants graphs
+he prefers something like GNUPlot
+
 # Dynamic Programming
 * No stack
 * No Recursion
