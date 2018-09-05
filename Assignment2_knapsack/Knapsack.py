@@ -9,7 +9,7 @@ import time
 import timeit
 import copy
 import datetime
-
+#import matplotlib.pylot as plt
 # This class will the package N that may vary by size
 class Item:
 	"""Package N that may vary by size
@@ -377,20 +377,17 @@ def KnapNoClassMemo(n, l1, l2):
 		l2 (int): The Size of the Second knapsack
 	"""
 	global cache
-	cacheKey = GenerateCacheKey(n, l1, l2)
-	if(cacheKey in cache):
-		global CacheHitCounter
-		CacheHitCounter += 1
-		return cache[cacheKey]
+	# cacheKey = GenerateCacheKey(n, l1, l2)
+	# if(cacheKey in cache):
+	# 	global CacheHitCounter
+	# 	CacheHitCounter += 1
+	# 	return cache[cacheKey]
 
 	if(l1 < 0 or l2 < 0):
-		cache[cacheKey] = False
 		return False
 	if(l1 == 0 and l2 == 0):
-		cache[cacheKey] = True
 		return True
 	if(n == 0):
-		cache[cacheKey] = False
 		return False
 	itemSize = GetIndexBlockSize(n-1)	
 	global recursiveCounter
@@ -401,18 +398,49 @@ def KnapNoClassMemo(n, l1, l2):
 	# this is if we put it in the knapsack or  This is if we want to discard the package
 	# to put it in the bag
 
-	#if(not(KnapNoClassMemo(n-1, l1 - itemSize, l2))):
-	
+	hitOneCache = False
+	global CacheHitCounter
 	cacheKeyOne = GenerateCacheKey(n-1, l1 - itemSize, l2)
 	if(cacheKeyOne in cache):
-		global CacheHitCounter
 		CacheHitCounter += 1
-		if(cache[cacheKey]):
+		hitOneCache = True
+		if(cache[cacheKeyOne]):
+			return True
+	#cache result was false, need to call the next one
+
+	hitTwoCache = False
+	cacheKeyTwo = GenerateCacheKey(n-1, l1, l2 - itemSize)
+	if(cacheKeyTwo in cache):
+		CacheHitCounter += 1
+		hitTwoCache = True
+		if(cache[cacheKeyTwo]):
+			return True
+	#Cache result was false
+	hitThreeCache = False
+	cacheKeyThree = GenerateCacheKey(n-1, l1, l2)
+	if(cacheKeyThree in cache):
+		CacheHitCounter += 1
+		hitThreeCache = True
+		if(cache[cacheKeyThree]):
 			return True
 
-	return (KnapNoClassMemo(n-1, l1 - itemSize, l2) # put in KnapsackOne
-	or KnapNoClassMemo(n-1, l1, l2 - itemSize) # put in knapsackTwo
-	or KnapNoClassMemo(n-1, l1, l2)) # discard the item
+	result = False
+	if(not(hitOneCache)):
+		result = KnapNoClassMemo(n-1, l1 - itemSize, l2) # put in KnapsackOne
+		cache[cacheKeyOne] = result
+
+	if(not(result) and not(hitTwoCache)):
+		result = KnapNoClassMemo(n-1, l1, l2 - itemSize)
+		cache[cacheKeyThree] = result
+
+	if(not(result) and not(hitThreeCache)):
+		result = KnapNoClassMemo(n-1, l1, l2)
+		cache[cacheKeyThree] = result
+	
+	return result
+	# return (KnapNoClassMemo(n-1, l1 - itemSize, l2) # put in KnapsackOne
+	# or KnapNoClassMemo(n-1, l1, l2 - itemSize) # put in knapsackTwo
+	# or KnapNoClassMemo(n-1, l1, l2)) # discard the item
 
 
 #RunConstantTest(KnapRecursive)
@@ -495,7 +523,7 @@ def RunEmpiricalCompareStudy(testFunction, testMemoFunction):
 		for j in range(numberOfRuns):
 			items = ProblemGenerator(i, itemSizeM)
 			problemCntrl.SetProblemItems(items)
-			print("Start Run:" + str(j) + " of " + str(numberOfRuns))
+			#print("Start Run:" + str(j) + " of " + str(numberOfRuns))
 			global recursiveCounter
 			recursiveCounter = 0
 			dateStartTime = datetime.datetime.now()
@@ -503,8 +531,8 @@ def RunEmpiricalCompareStudy(testFunction, testMemoFunction):
 			dateEndTime = datetime.datetime.now()
 			duration = dateEndTime - dateStartTime
 			durationStr =  str(duration)#time.strftime("%H:%M:%S", time.gmtime(duration))
-			print("finished Run:" + str(j) + " of " + str(numberOfRuns) + " with :" + durationStr)
-			print("Number of Calls:" + str(recursiveCounter))
+			#print("finished Run:" + str(j) + " of " + str(numberOfRuns) + " with :" + durationStr)
+			#print("Number of Calls:" + str(recursiveCounter))
 			nonCacheCounter = recursiveCounter
 
 			# Testing the Memo version
@@ -519,11 +547,24 @@ def RunEmpiricalCompareStudy(testFunction, testMemoFunction):
 			dateEndTime = datetime.datetime.now()
 			durationMemo = dateEndTime - dateStartTime
 			durationMemoStr =  str(durationMemo)
-			print("finished Run:" + str(j) + " of " + str(numberOfRuns) + " with :" + durationStr)
-			print("Number of Calls:" + str(recursiveCounter))
+			#print("finished Run:" + str(j) + " of " + str(numberOfRuns) + " with :" + durationStr)
+			#print("Number of Calls:" + str(recursiveCounter))
 			print("Recursive:" + str(durationStr) + " recursiveCounter:" + str(nonCacheCounter) + " RecursiveResult:" + str(recursiveResult) + " Cache:" + str(durationMemoStr) + " CacheCounter:" + str(recursiveCounter) + " CacheResult:" + str(cacheResult) + "CacheHitCounter:" + str(CacheHitCounter))
 
+
+# plt.plot([1,2,3,4])
+# plt.ylabel('some numbers')
+# plt.show()
 
 #RunEmpiricalStudy(KnapMemo)
 RunEmpiricalCompareStudy(KnapNoClassRecursive, KnapNoClassMemo)
 #RunConstantNoClassTest(KnapNoClassRecursive)
+
+# questions on assignment
+# you can use it with a single dictionary
+#
+# You can get noise, 
+
+# How do you want the homework turned in? turn it in as a zip file
+# how he wants graphs
+# he prefers something like GNUPlot
