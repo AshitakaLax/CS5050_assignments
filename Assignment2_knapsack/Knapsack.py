@@ -8,37 +8,75 @@ import random
 import copy
 import datetime
 import numpy as np
-import matplotlib.pyplot as plt
-# This class will the package N that may vary by size
+import matplotlib.pyplot as plot
+
+#region Problem Generation Methods
 class Item:
 	"""Package N that may vary by size
 	"""
 	Size = 0
-
-##
-# @brief  Create a problem generator that
-# takes n and m and returns a list of n uniformly
-# @param N The number of items to generate
-# @param M the random number range from 0 to M-1
 def ProblemGenerator(N, M):
+	"""Generate ProblemSet
+	
+	Arguments:
+		N {int} -- The number of items to generate
+		M {int} -- The range of random numbers to generate to 1-(M-1)
+	
+	Returns:
+		Array of Random sized items -- N size Array of Random Sized items between 1-(M-1)
+	"""
+
 	problemSet = []
 	# Create N Items
 	# Randoms assign sizes to the Items from 0 to M-1
 	for count in range(N):
 		item = Item()
-		item.Size = random.randint(0, M - 1)
+		item.Size = random.randint(1, M - 1)
 		problemSet.append(item)
 	return problemSet
 
 class ProblemController:
+	"""A global class that will hold the items for the set of tests
+	"""
 	Items = []
 	def SetProblemItems(self, items):
+		"""A needless function to set the Items for the set of tests
+		Arguments:
+			items {Item[]} -- An array of Items
+		"""
 		self.Items = items
-	
+#endregion
 
+def GenerateCacheKey(n, l1, l2):
+	"""Generates a key that is unique for n, l1, l2
+	
+	Arguments:
+		n {int} -- The number of items
+		l1 {int} -- The remaining room in the knapsack one
+		l2 {int} -- The remaining room in knapsack two
+	
+	Returns:
+		String -- The unique key for the given parameters
+	"""
+	return str(n)+ "_" + str(l1) + "_" + str(l2)
+
+# Helper Global variables
+cache = {"":False}
 problemCntrl = ProblemController()
 
+#
+CacheHitCounter = 0
+recursiveCounter = 0
+
 def GetIndexBlockSize(index):
+	"""Gets the size of the of item, or S[i]
+	
+	Arguments:
+		index {int} -- The index of the array of items
+	
+	Returns:
+		int -- The size of the item
+	"""
 	return problemCntrl.Items[index].Size
 
 def ConstantProblemGenerator(N, C):
@@ -60,7 +98,6 @@ def ConstantProblemGenerator(N, C):
 		problemSet.append(item)
 	return problemSet
 
-recursiveCounter = 0
 def KnapNoClassRecursive(n, l1, l2):
 	"""Recursive algorithm that returns true if both 
 	knap sacks are filled
@@ -150,12 +187,6 @@ def RunConstantNoClassTest(testFunction):
 
 # We are going to use the cache, this cache will be the concat of 'n'+'l1'+'l2' into a single string, with '_' symbol between them.
 
-cache = {"":False}
-
-def GenerateCacheKey(n, l1, l2):
-	return str(n)+ "_" + str(l1) + "_" + str(l2)
-
-CacheHitCounter = 0
 def KnapNoClassMemo(n, l1, l2):
 	"""Recursive algorithm that returns true if both 
 	knap sacks are filled
@@ -297,17 +328,18 @@ def RunEmpiricalCompareStudy(testFunction, testMemoFunction):
 			#print("Number of Calls:" + str(recursiveCounter))
 			print("Recursive:" + str(durationStr) + " recursiveCounter:" + str(nonCacheCounter) + " RecursiveResult:" + str(recursiveResult) + " Cache:" + str(durationMemoStr) + " CacheCounter:" + str(recursiveCounter) + " CacheResult:" + str(cacheResult) + "CacheHitCounter:" + str(CacheHitCounter))
 
-
+timeResults = []
 def RunEmpiricalStudyForGraphData(testFunction):
-	L1 = 100
-	L2 = 100
-	min = 10
+	L1 = 1000
+	L2 = 1000
+	min = 100
 	max = 200
 	incrementAmount = 10
-	itemSizeM = 50
+	itemSizeM = 100
 	numberOfRuns = 10
-
-
+	global timeResults
+	timeResults = []
+	global CacheHitCounter
 	# iterate from min to max
 	for i in range(min, max, incrementAmount):
 		# run each test 10 times with i
@@ -316,6 +348,7 @@ def RunEmpiricalStudyForGraphData(testFunction):
 		for j in range(numberOfRuns):
 			items = ProblemGenerator(i, itemSizeM)
 			problemCntrl.SetProblemItems(items)
+			cache.clear()
 			#print("Start Run:" + str(j) + " of " + str(numberOfRuns))
 			global recursiveCounter
 			recursiveCounter = 0
@@ -323,49 +356,29 @@ def RunEmpiricalStudyForGraphData(testFunction):
 			recursiveResult = testFunction(i, L1, L2)
 			dateEndTime = datetime.datetime.now()
 			duration = dateEndTime - dateStartTime
-			durationStr =  str(duration)#time.strftime("%H:%M:%S", time.gmtime(duration))
-			#print("finished Run:" + str(j) + " of " + str(numberOfRuns) + " with :" + durationStr)
-			#print("Number of Calls:" + str(recursiveCounter))
-			nonCacheCounter = recursiveCounter
+			timeResults.append(duration)
+			print("Duration:" + str(duration) + " RecursiveCounter:" + str(recursiveCounter) + " CacheHitCounter:" + str(CacheHitCounter) +  " Result:" + str(recursiveResult) )
 
-			# Testing the Memo version
-			recursiveCounter = 0
-			global CacheHitCounter
 			CacheHitCounter = 0
-			global cache
-			cache = {"": False}
-			problemCntrl.SetProblemItems(items)
-			dateStartTime = datetime.datetime.now()
-			cacheResult = testMemoFunction(i, L1, L2)
-			dateEndTime = datetime.datetime.now()
-			durationMemo = dateEndTime - dateStartTime
-			durationMemoStr =  str(durationMemo)
-			#print("finished Run:" + str(j) + " of " + str(numberOfRuns) + " with :" + durationStr)
-			#print("Number of Calls:" + str(recursiveCounter))
-			print("Recursive:" + str(durationStr) + " recursiveCounter:" + str(nonCacheCounter) + " RecursiveResult:" + str(recursiveResult) + " Cache:" + str(durationMemoStr) + " CacheCounter:" + str(recursiveCounter) + " CacheResult:" + str(cacheResult) + "CacheHitCounter:" + str(CacheHitCounter))
-
+			
+#RunEmpiricalStudyForGraphData(KnapNoClassRecursive)
+RunEmpiricalStudyForGraphData(KnapNoClassMemo)
 
 
 # plt.plot([1,2,3,4])
 # plt.ylabel('some numbers')
 # plt.show()
 
-#RunEmpiricalStudy(KnapMemo)
+#RunEmpiricalNoClassStudy(KnapNoClassMemo)
 #RunEmpiricalCompareStudy(KnapNoClassRecursive, KnapNoClassMemo)
 #RunConstantNoClassTest(KnapNoClassRecursive)
 
 # Creating the graphing data
 
 # Load the example iris dataset
-diamonds = sns.load_dataset("diamonds")
 
 # Draw a scatter plot while assigning point colors and sizes to different
 # variables in the dataset
-tips = sns.load_dataset("tips")
-
-data = np.array([['', 'Col1', "Col2"],
-				['Row1', 1, 2],
-				['Row2', 3, 4]])
 				
 xData = [1,2,3]
 yData = [3,2,1]
@@ -374,6 +387,5 @@ yData = [3,2,1]
 #                  index=data[1:,0],
 #                  columns=data[0,1:])
 #print(dataFrame)
-plt.scatter(xData, yData)
-plt.show()
 RunConstantNoClassTest(KnapNoClassRecursive)
+RunConstantNoClassTest(KnapNoClassMemo)
