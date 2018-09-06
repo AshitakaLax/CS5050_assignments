@@ -8,7 +8,7 @@ import random
 import copy
 import datetime
 import numpy as np
-import matplotlib.pyplot as plot
+import matplotlib.pyplot as plt
 
 #region Problem Generation Methods
 class Item:
@@ -64,8 +64,9 @@ def GenerateCacheKey(n, l1, l2):
 cache = {"":False}
 problemCntrl = ProblemController()
 
-#
+# keeps track of the number of times the cache is hit
 CacheHitCounter = 0
+# keeps track the number of times the recursive function is called
 recursiveCounter = 0
 
 def GetIndexBlockSize(index):
@@ -98,7 +99,8 @@ def ConstantProblemGenerator(N, C):
 		problemSet.append(item)
 	return problemSet
 
-def KnapNoClassRecursive(n, l1, l2):
+#region Knapsack Implementations
+def KnapRecursive(n, l1, l2):
 	"""Recursive algorithm that returns true if both 
 	knap sacks are filled
 	
@@ -119,75 +121,11 @@ def KnapNoClassRecursive(n, l1, l2):
 	# this is if we put it in the knapsack or  This is if we want to discard the package
 	# to put it in the bag
 
-	return (KnapNoClassRecursive(n-1, l1 - itemSize, l2) # put in KnapsackOne
-	or KnapNoClassRecursive(n-1, l1, l2 - itemSize) # put in knapsackTwo
-	or KnapNoClassRecursive(n-1, l1, l2)) # discard the item
+	return (KnapRecursive(n-1, l1 - itemSize, l2) # put in KnapsackOne
+	or KnapRecursive(n-1, l1, l2 - itemSize) # put in knapsackTwo
+	or KnapRecursive(n-1, l1, l2)) # discard the item
 
-# First solve this problem for One knapsack
-
-def runNoClassTest(n, k1, k2, expect, testFunction):
-	print("Size of knapsackOne: "+ str(k1))
-	print("Size of knapsackTwo: "+ str(k2))
-	print("Number of objects: "+ str(n))
-	result = testFunction(n, k1, k2)
-	print("Can Fill all cells:" + str(result))
-	if(result == expect):
-		print("SUCCESS")
-	else:
-		print("FAILED")
-	return result == expect
-
-def RunConstantNoClassTest(testFunction):
-	"""Runs a set of simple expected result tests against a knapsack function
-	
-	Arguments:
-		testFunction {Method(int, int, int)} -- Function that will run the Knapsack alorgithm and return true or false
-	"""
-	# Create Test size sets
-	# test data sets
-	# Testing a Single Knapsack
-	n = ConstantProblemGenerator(0, 1)
-	problemCntrl.SetProblemItems(n)
-
-	sumResult = runNoClassTest(len(n), 0, 0, True, testFunction)
-	n = ConstantProblemGenerator(1, 2)
-	problemCntrl.SetProblemItems(n)
-	sumResult &= runNoClassTest(len(n), 0, 0, True, testFunction)
-	n = ConstantProblemGenerator(10, 2)
-	problemCntrl.SetProblemItems(n)
-	sumResult &= runNoClassTest(len(n), 16, 0, True, testFunction)
-	n = ConstantProblemGenerator(20, 10)
-	problemCntrl.SetProblemItems(n)
-	sumResult &= runNoClassTest(len(n), 100, 0, True, testFunction)
-	n = ConstantProblemGenerator(5, 1)
-	problemCntrl.SetProblemItems(n)
-	sumResult &= runNoClassTest(len(n), 5, 0, True, testFunction)
-
-	# Testing multiple Knapsacks
-	n = ConstantProblemGenerator(5, 5)
-	problemCntrl.SetProblemItems(n)
-	sumResult &= runNoClassTest(len(n), 20, 5, True, testFunction)
-	n = ConstantProblemGenerator(5, 5)
-	problemCntrl.SetProblemItems(n)
-	sumResult &= runNoClassTest(len(n), 20, 6, False, testFunction)
-	n = ConstantProblemGenerator(3, 3)
-	problemCntrl.SetProblemItems(n)
-	sumResult &= runNoClassTest(len(n), 3, 6, True, testFunction)
-	n = ConstantProblemGenerator(3, 3)
-	problemCntrl.SetProblemItems(n)
-	sumResult &= runNoClassTest(len(n), 0, 6, True, testFunction)
-	n = ConstantProblemGenerator(3, 3)
-	problemCntrl.SetProblemItems(n)
-	sumResult &= runNoClassTest(len(n), 0, 10, False, testFunction)
-
-	if(sumResult):
-		print("ALL Tests PASS")
-	else:
-		print("Some Test Failed")
-
-# We are going to use the cache, this cache will be the concat of 'n'+'l1'+'l2' into a single string, with '_' symbol between them.
-
-def KnapNoClassMemo(n, l1, l2):
+def KnapMemo(n, l1, l2):
 	"""Recursive algorithm that returns true if both 
 	knap sacks are filled
 	
@@ -238,21 +176,83 @@ def KnapNoClassMemo(n, l1, l2):
 
 	result = False
 	if(not(hitOneCache)):
-		result = KnapNoClassMemo(n-1, l1 - itemSize, l2) # put in KnapsackOne
+		result = KnapMemo(n-1, l1 - itemSize, l2) # put in KnapsackOne
 		cache[cacheKeyOne] = result
 
 	if(not(result) and not(hitTwoCache)):
-		result = KnapNoClassMemo(n-1, l1, l2 - itemSize)
+		result = KnapMemo(n-1, l1, l2 - itemSize)
 		cache[cacheKeyThree] = result
 
 	if(not(result) and not(hitThreeCache)):
-		result = KnapNoClassMemo(n-1, l1, l2)
+		result = KnapMemo(n-1, l1, l2)
 		cache[cacheKeyThree] = result
 	
 	return result
+#endregion
+#region Testing Code
+def RunTest(n, k1, k2, expect, testFunction):
+	print("Size of knapsackOne: "+ str(k1))
+	print("Size of knapsackTwo: "+ str(k2))
+	print("Number of objects: "+ str(n))
+	result = testFunction(n, k1, k2)
+	print("Can Fill all cells:" + str(result))
+	if(result == expect):
+		print("SUCCESS")
+	else:
+		print("FAILED")
+	return result == expect
 
+def RunConstantTest(testFunction):
+	"""Runs a set of simple expected result tests against a knapsack function
+	
+	Arguments:
+		testFunction {Method(int, int, int)} -- Function that will run the Knapsack alorgithm and return true or false
+	"""
+	# Create Test size sets
+	# test data sets
+	# Testing a Single Knapsack
+	n = ConstantProblemGenerator(0, 1)
+	problemCntrl.SetProblemItems(n)
+
+	sumResult = RunTest(len(n), 0, 0, True, testFunction)
+	n = ConstantProblemGenerator(1, 2)
+	problemCntrl.SetProblemItems(n)
+	sumResult &= RunTest(len(n), 0, 0, True, testFunction)
+	n = ConstantProblemGenerator(10, 2)
+	problemCntrl.SetProblemItems(n)
+	sumResult &= RunTest(len(n), 16, 0, True, testFunction)
+	n = ConstantProblemGenerator(20, 10)
+	problemCntrl.SetProblemItems(n)
+	sumResult &= RunTest(len(n), 100, 0, True, testFunction)
+	n = ConstantProblemGenerator(5, 1)
+	problemCntrl.SetProblemItems(n)
+	sumResult &= RunTest(len(n), 5, 0, True, testFunction)
+
+	# Testing multiple Knapsacks
+	n = ConstantProblemGenerator(5, 5)
+	problemCntrl.SetProblemItems(n)
+	sumResult &= RunTest(len(n), 20, 5, True, testFunction)
+	n = ConstantProblemGenerator(5, 5)
+	problemCntrl.SetProblemItems(n)
+	sumResult &= RunTest(len(n), 20, 6, False, testFunction)
+	n = ConstantProblemGenerator(3, 3)
+	problemCntrl.SetProblemItems(n)
+	sumResult &= RunTest(len(n), 3, 6, True, testFunction)
+	n = ConstantProblemGenerator(3, 3)
+	problemCntrl.SetProblemItems(n)
+	sumResult &= RunTest(len(n), 0, 6, True, testFunction)
+	n = ConstantProblemGenerator(3, 3)
+	problemCntrl.SetProblemItems(n)
+	sumResult &= RunTest(len(n), 0, 10, False, testFunction)
+
+	if(sumResult):
+		print("ALL Tests PASS")
+	else:
+		print("Some Test Failed")
+#endregion
+#region Empirical Study Code
 #empirical  study
-def RunEmpiricalNoClassStudy(testFunction):
+def RunEmpiricalStudy(testFunction):
 	L1 = 100
 	L2 = 100
 	min = 10
@@ -329,16 +329,19 @@ def RunEmpiricalCompareStudy(testFunction, testMemoFunction):
 			print("Recursive:" + str(durationStr) + " recursiveCounter:" + str(nonCacheCounter) + " RecursiveResult:" + str(recursiveResult) + " Cache:" + str(durationMemoStr) + " CacheCounter:" + str(recursiveCounter) + " CacheResult:" + str(cacheResult) + "CacheHitCounter:" + str(CacheHitCounter))
 
 timeResults = []
+objectResults = []
 def RunEmpiricalStudyForGraphData(testFunction):
-	L1 = 1000
-	L2 = 1000
-	min = 100
+	L1 = 100
+	L2 = 100
+	min = 10
 	max = 200
 	incrementAmount = 10
-	itemSizeM = 100
+	itemSizeM = 50
 	numberOfRuns = 10
 	global timeResults
 	timeResults = []
+	global objectResults
+	objectResults = []
 	global CacheHitCounter
 	# iterate from min to max
 	for i in range(min, max, incrementAmount):
@@ -356,18 +359,20 @@ def RunEmpiricalStudyForGraphData(testFunction):
 			recursiveResult = testFunction(i, L1, L2)
 			dateEndTime = datetime.datetime.now()
 			duration = dateEndTime - dateStartTime
-			timeResults.append(duration)
+			timeResults.append(duration.total_seconds())
+			objectResults.append(i)
 			print("Duration:" + str(duration) + " RecursiveCounter:" + str(recursiveCounter) + " CacheHitCounter:" + str(CacheHitCounter) +  " Result:" + str(recursiveResult) )
 
 			CacheHitCounter = 0
-			
-#RunEmpiricalStudyForGraphData(KnapNoClassRecursive)
-RunEmpiricalStudyForGraphData(KnapNoClassMemo)
+#endregion			
 
+RunEmpiricalStudyForGraphData(KnapMemo)
 
-# plt.plot([1,2,3,4])
-# plt.ylabel('some numbers')
-# plt.show()
+plt.scatter(timeResults, objectResults)
+#plt.plot(timeResults, objectResults)
+plt.ylabel('Objects')
+plt.xlabel('Time')
+plt.show()
 
 #RunEmpiricalNoClassStudy(KnapNoClassMemo)
 #RunEmpiricalCompareStudy(KnapNoClassRecursive, KnapNoClassMemo)
@@ -387,5 +392,5 @@ yData = [3,2,1]
 #                  index=data[1:,0],
 #                  columns=data[0,1:])
 #print(dataFrame)
-RunConstantNoClassTest(KnapNoClassRecursive)
-RunConstantNoClassTest(KnapNoClassMemo)
+RunConstantTest(KnapRecursive)
+RunConstantTest(KnapMemo)
