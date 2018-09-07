@@ -377,19 +377,20 @@ def TestRunFewSmallExamples():
 memoObjectCountResult= []
 memoTimeResult= []
 
-EmpiricalStudy(KnapMemo, memoTimeResult, memoObjectCountResult)
+EmpiricalStudy(KnapMemo, memoTimeResult, memoObjectCountResult, max = 90, numberOfRuns=10)
 
 recursiveObjectCountResult= []
 recursiveTimeResult= []
 
-EmpiricalStudy(KnapRecursive, recursiveTimeResult, recursiveObjectCountResult, max=50)
+EmpiricalStudy(KnapRecursive, recursiveTimeResult, recursiveObjectCountResult, max=90, numberOfRuns=10)
 
-plt.scatter(memoObjectCountResult, memoTimeResult, color="red")
-plt.scatter(recursiveObjectCountResult, recursiveTimeResult, color="blue")
+plt.scatter(memoObjectCountResult, memoTimeResult, color="red", label="Cache")
+plt.scatter(recursiveObjectCountResult, recursiveTimeResult, color="blue", label="Recursive")
 plt.yscale('log')
 plt.ylabel('Time')
-
-plt.xlabel('Objects')
+plt.legend(loc='best')
+plt.xlabel('Number of Objects(N)')
+plt.title("Comparison of Recursive vs Cached")
 plt.show()
 
 #EmpiricalStudy(KnapMemo)
