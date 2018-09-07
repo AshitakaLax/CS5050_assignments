@@ -5,7 +5,6 @@
 
 #imports needed for the assignment
 import random
-import copy
 import datetime
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,6 +14,7 @@ class Item:
 	"""Package N that may vary by size
 	"""
 	Size = 0
+
 def ProblemGenerator(N, M):
 	"""Generate ProblemSet
 	
@@ -249,6 +249,7 @@ def RunConstantTest(testFunction):
 		print("ALL Tests PASS")
 	else:
 		print("Some Test Failed")
+
 #endregion
 #region Empirical Study Code
 #empirical  study
@@ -330,18 +331,11 @@ def RunEmpiricalCompareStudy(testFunction, testMemoFunction):
 
 timeResults = []
 objectResults = []
-def RunEmpiricalStudyForGraphData(testFunction):
-	L1 = 100
-	L2 = 100
-	min = 10
-	max = 200
-	incrementAmount = 10
-	itemSizeM = 50
-	numberOfRuns = 10
-	global timeResults
-	timeResults = []
-	global objectResults
-	objectResults = []
+def EmpiricalStudy(testFunction, timeResults, objectResults, L1=100, L2=100, min=10, max=200, incrementAmount=10, itemSizeM=50, numberOfRuns=10):
+	# global timeResults
+	# timeResults = []
+	# global objectResults
+	# objectResults = []
 	global CacheHitCounter
 	# iterate from min to max
 	for i in range(min, max, incrementAmount):
@@ -352,7 +346,6 @@ def RunEmpiricalStudyForGraphData(testFunction):
 			items = ProblemGenerator(i, itemSizeM)
 			problemCntrl.SetProblemItems(items)
 			cache.clear()
-			#print("Start Run:" + str(j) + " of " + str(numberOfRuns))
 			global recursiveCounter
 			recursiveCounter = 0
 			dateStartTime = datetime.datetime.now()
@@ -366,31 +359,37 @@ def RunEmpiricalStudyForGraphData(testFunction):
 			CacheHitCounter = 0
 #endregion			
 
-RunEmpiricalStudyForGraphData(KnapMemo)
+def TestRunFewSmallExamples():
+	print("-------------------------------------")
+	print("Testing KnapRecursive on Few small examples")
+	print("-------------------------------------")
+	print("")
+	RunConstantTest(KnapRecursive)
+	print("")
+	print("")
+	print("-------------------------------------")
+	print("Testing KnapMemo on Few small examples")
+	print("-------------------------------------")
+	print("")
+	RunConstantTest(KnapRecursive)
 
-plt.scatter(timeResults, objectResults)
-#plt.plot(timeResults, objectResults)
-plt.ylabel('Objects')
-plt.xlabel('Time')
+
+memoObjectCountResult= []
+memoTimeResult= []
+
+EmpiricalStudy(KnapMemo, memoTimeResult, memoObjectCountResult)
+
+recursiveObjectCountResult= []
+recursiveTimeResult= []
+
+EmpiricalStudy(KnapRecursive, recursiveTimeResult, recursiveObjectCountResult, max=50)
+
+plt.scatter(memoObjectCountResult, memoTimeResult, color="red")
+plt.scatter(recursiveObjectCountResult, recursiveTimeResult, color="blue")
+plt.yscale('log')
+plt.ylabel('Time')
+
+plt.xlabel('Objects')
 plt.show()
 
-#RunEmpiricalNoClassStudy(KnapNoClassMemo)
-#RunEmpiricalCompareStudy(KnapNoClassRecursive, KnapNoClassMemo)
-#RunConstantNoClassTest(KnapNoClassRecursive)
-
-# Creating the graphing data
-
-# Load the example iris dataset
-
-# Draw a scatter plot while assigning point colors and sizes to different
-# variables in the dataset
-				
-xData = [1,2,3]
-yData = [3,2,1]
-
-#dataFrame = pd.DataFrame(data=data[1:,1:],
-#                  index=data[1:,0],
-#                  columns=data[0,1:])
-#print(dataFrame)
-RunConstantTest(KnapRecursive)
-RunConstantTest(KnapMemo)
+#EmpiricalStudy(KnapMemo)
