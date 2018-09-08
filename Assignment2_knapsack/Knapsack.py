@@ -332,10 +332,6 @@ def RunEmpiricalCompareStudy(testFunction, testMemoFunction):
 timeResults = []
 objectResults = []
 def EmpiricalStudy(testFunction, timeResults, objectResults, L1=100, L2=100, min=10, max=200, incrementAmount=10, itemSizeM=50, numberOfRuns=10):
-	# global timeResults
-	# timeResults = []
-	# global objectResults
-	# objectResults = []
 	global CacheHitCounter
 	# iterate from min to max
 	for i in range(min, max, incrementAmount):
@@ -373,16 +369,15 @@ def TestRunFewSmallExamples():
 	print("")
 	RunConstantTest(KnapRecursive)
 
-
+# The arrays to use for graphing the result
 memoObjectCountResult= []
 memoTimeResult= []
-
-EmpiricalStudy(KnapMemo, memoTimeResult, memoObjectCountResult, max = 90, numberOfRuns=10)
-
 recursiveObjectCountResult= []
 recursiveTimeResult= []
 
-EmpiricalStudy(KnapRecursive, recursiveTimeResult, recursiveObjectCountResult, max=90, numberOfRuns=10)
+# Runs the empirical study
+EmpiricalStudy(KnapMemo, memoTimeResult, memoObjectCountResult, max = 200, numberOfRuns=10, incrementAmount=5, itemSizeM=25, L1=150, L2=150)
+#EmpiricalStudy(KnapRecursive, recursiveTimeResult, recursiveObjectCountResult, max=200, numberOfRuns=10)
 
 plt.scatter(memoObjectCountResult, memoTimeResult, color="red", label="Cache")
 plt.scatter(recursiveObjectCountResult, recursiveTimeResult, color="blue", label="Recursive")

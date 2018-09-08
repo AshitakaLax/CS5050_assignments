@@ -36,14 +36,27 @@ you should be able to install the dependencies via the following commands
 #### Algorithm 
 
 #### Cache
-The cache I used was a Dictionary Approach
+The cache I used was a Dictionary Approach by creating a hash.
 
 I take the 3 inputs n, l1, l2 and concatinate there values into a string, for example with n=4, l1=23, l2=83 the string would be '4_23_83'. 
 
+### Empirical Study
 
+When running the empirical study the caching approach starts out slower, but with more objects, it tends to be faster at finding the solution since it calls on the same parameters so many times.
 
+When running the KnapRecursive() it tends to be fast, but once in a while it will get a set that will cause it to take a very log time.
+
+**Generate a table of runtime vs. the number of objects. At what object count does it become infeasible to run the algorithm?** 
+
+![Sample Table](https://raw.githubusercontent.com/ashitakalax/CS5050_assignments/master/Assignment2_knapsack/SamplesTable.png)
+
+![](https://raw.githubusercontent.com/ashitakalax/CS5050_assignments/master/Assignment2_knapsack/cacheAndRecursiveOf80Objects.svg)
+
+![alt text](https://raw.githubusercontent.com/ashitakalax/CS5050_assignments/master/Assignment2_knapsack/cacheAndRecursiveOf80Objects.svg)
 
 Submit your graph and report your commented code along with instructions to run the code.
+
+
 
 Write a brief writeup (about 10 sentences) explaining the behavior of the algorithms derived from the graphs.
 
