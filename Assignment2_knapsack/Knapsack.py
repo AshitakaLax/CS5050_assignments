@@ -380,6 +380,8 @@ def TestRunFewSmallExamples():
 	print("")
 	RunConstantTest(KnapRecursive)
 
+TestRunFewSmallExamples()
+
 # The arrays to use for graphing the result
 memoObjectCountResult= []
 memoTimeResult= []
@@ -387,8 +389,8 @@ recursiveObjectCountResult= []
 recursiveTimeResult= []
 
 # Runs the empirical study
-EmpiricalStudy(KnapMemo, memoTimeResult, memoObjectCountResult, max = 200, numberOfRuns=10, incrementAmount=5, itemSizeM=25, L1=150, L2=150)
-#EmpiricalStudy(KnapRecursive, recursiveTimeResult, recursiveObjectCountResult, max=200, numberOfRuns=10)
+EmpiricalStudy(KnapMemo, memoTimeResult, memoObjectCountResult)
+EmpiricalStudy(KnapRecursive, recursiveTimeResult, recursiveObjectCountResult)
 
 plt.scatter(memoObjectCountResult, memoTimeResult, color="red", label="Cache")
 plt.scatter(recursiveObjectCountResult, recursiveTimeResult, color="blue", label="Recursive")
@@ -398,5 +400,3 @@ plt.legend(loc='best')
 plt.xlabel('Number of Objects(N)')
 plt.title("Comparison of Recursive vs Cached")
 plt.show()
-
-#EmpiricalStudy(KnapMemo)

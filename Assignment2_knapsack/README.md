@@ -5,7 +5,6 @@
 * Programming Language: **Python**
 * Python Runtime Engine/Version: **3.6.5**
 
-
 ## Dependencies
 
 Make sure to install the following packages before running
@@ -33,7 +32,7 @@ For the Recursion I crawl through all of the possible options, and if the blocks
 It checks by adding the item to the first knapsack, then the second, then discards that particular item, and tries the next
 
 ### Description of memorizing
-
+The memorizing utilizes the same recursion as the knapsack, but substitutes the 
 #### Algorithm 
 
 #### Cache
@@ -52,12 +51,7 @@ When running the KnapRecursive() it tends to be fast, but once in a while it wil
 Here is a table with the averages with the time in seconds
 ![Sample Table](https://raw.githubusercontent.com/ashitakalax/CS5050_assignments/master/Assignment2_knapsack/SamplesTable.png)
 
-![Cache ](https://raw.githubusercontent.com/ashitakalax/CS5050_assignments/master/Assignment2_knapsack/CacheImplementation.svg)
-
-![alt text](https://raw.githubusercontent.com/ashitakalax/CS5050_assignments/master/Assignment2_knapsack/cacheAndRecursiveOf80objects.svg)
-
-
-Write a brief writeup (about 10 sentences) explaining the behavior of the algorithms derived from the graphs.
+![Cache vs Recursive ](https://raw.githubusercontent.com/ashitakalax/CS5050_assignments/master/Assignment2_knapsack/80ObjectRun.PNG)
 
 
 ### Assignment Instructions
