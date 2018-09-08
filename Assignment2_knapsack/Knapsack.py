@@ -136,44 +136,54 @@ def KnapMemo(n, l1, l2):
 	"""
 	global cache
 
+	# base cases to check whether we have filled both knapsacks, or can't fit the current item.
 	if(l1 < 0 or l2 < 0):
 		return False
 	if(l1 == 0 and l2 == 0):
 		return True
 	if(n == 0):
 		return False
+	# get the size of the item to fit in the knapsack
 	itemSize = GetIndexBlockSize(n-1)	
+
+	# Metric variable that plays no factor in algorithm
 	global recursiveCounter
 	recursiveCounter += 1
-	# this is if we put it in the knapsack or  This is if we want to discard the package
-	# to put it in the bag
-
-	hitOneCache = False
 	global CacheHitCounter
+
+# START of CACHE CHECKING
+	# get the cache key for trying to put the package in L1
 	cacheKeyOne = GenerateCacheKey(n-1, l1 - itemSize, l2)
+	hitOneCache = False
+
+	# Check whether the key is in the cache
 	if(cacheKeyOne in cache):
-		CacheHitCounter += 1
-		hitOneCache = True
-		if(cache[cacheKeyOne]):
+		CacheHitCounter += 1 # for metrics
+		hitOneCache = True 
+		# Return true if we hit the cache
+		if(cache[cacheKeyOne]): 
 			return True
 	#cache result was false, need to call the next one
 
 	hitTwoCache = False
 	cacheKeyTwo = GenerateCacheKey(n-1, l1, l2 - itemSize)
 	if(cacheKeyTwo in cache):
-		CacheHitCounter += 1
+		CacheHitCounter += 1 # for metrics
 		hitTwoCache = True
 		if(cache[cacheKeyTwo]):
 			return True
+
 	#Cache result was false
 	hitThreeCache = False
 	cacheKeyThree = GenerateCacheKey(n-1, l1, l2)
 	if(cacheKeyThree in cache):
-		CacheHitCounter += 1
+		CacheHitCounter += 1 # for metrics
 		hitThreeCache = True
 		if(cache[cacheKeyThree]):
 			return True
 
+	# I chose instead of returning the cache result directly, would make the call
+	# into the 
 	result = False
 	if(not(hitOneCache)):
 		result = KnapMemo(n-1, l1 - itemSize, l2) # put in KnapsackOne
@@ -186,7 +196,8 @@ def KnapMemo(n, l1, l2):
 	if(not(result) and not(hitThreeCache)):
 		result = KnapMemo(n-1, l1, l2)
 		cache[cacheKeyThree] = result
-	
+
+	# this the result of the last knapmemo
 	return result
 #endregion
 #region Testing Code

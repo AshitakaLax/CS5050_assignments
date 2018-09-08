@@ -29,7 +29,8 @@ you should be able to install the dependencies via the following commands
 ### Description of Recursive Solution
 
 #### Algorithm 
-
+For the Recursion I crawl through all of the possible options, and if the blocks align it is extremely fast.
+It checks by adding the item to the first knapsack, then the second, then discards that particular item, and tries the next
 
 ### Description of memorizing
 
@@ -48,14 +49,12 @@ When running the KnapRecursive() it tends to be fast, but once in a while it wil
 
 **Generate a table of runtime vs. the number of objects. At what object count does it become infeasible to run the algorithm?** 
 
+Here is a table with the averages with the time in seconds
 ![Sample Table](https://raw.githubusercontent.com/ashitakalax/CS5050_assignments/master/Assignment2_knapsack/SamplesTable.png)
 
-![](https://raw.githubusercontent.com/ashitakalax/CS5050_assignments/master/Assignment2_knapsack/cacheAndRecursiveOf80Objects.svg)
+![Cache ](https://raw.githubusercontent.com/ashitakalax/CS5050_assignments/master/Assignment2_knapsack/CacheImplementation.svg)
 
-![alt text](https://raw.githubusercontent.com/ashitakalax/CS5050_assignments/master/Assignment2_knapsack/cacheAndRecursiveOf80Objects.svg)
-
-Submit your graph and report your commented code along with instructions to run the code.
-
+![alt text](https://raw.githubusercontent.com/ashitakalax/CS5050_assignments/master/Assignment2_knapsack/cacheAndRecursiveOf80objects.svg)
 
 
 Write a brief writeup (about 10 sentences) explaining the behavior of the algorithms derived from the graphs.
